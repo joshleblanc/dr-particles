@@ -62,9 +62,13 @@ def process_emitters(emitters, particles, args)
       emitter.num.times do
         particle = emitter.copy().merge!( {
           anchor_x: 0.5, anchor_y: 0.5,
+          x: maybe_range(particle, emitter, :x),
+          y: maybe_range(particle, emitter, :y),
+          w: maybe_range(particle, emitter, :w),
+          h: maybe_range(particle, emitter, :h),
           xvel: rand().remap(0, 1, emitter.xv_min, emitter.xv_max),
           yvel: rand().remap(0, 1, emitter.yv_min, emitter.yv_max),
-          time: tc + emitter.time,
+          time: tc + maybe_range(particle, emitter, :time),
           angle: emitter.angle == -1 ? rand(360) : emitter.angle,
           spawn_time: tc,
         })
@@ -110,6 +114,17 @@ def process_particles(particles, args)
     end
 
     p.time.elapsed?
+  end
+end
+
+def maybe_range(particle, emitter, key)
+  min_key = :"min_#{key}"
+  max_key = :"max_#{key}"
+
+  if emitter[min_key] && emitter[max_key]
+    rand().remap(0, 1, emitter[min_key], emitter[max_key])
+  else 
+    emitter[key]
   end
 end
 
